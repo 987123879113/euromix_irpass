@@ -219,6 +219,22 @@ var _pymeth_replace = function (s1, s2, count) {  // nargs: 2 3
     parts.push(this.slice(i));
     return parts.join('');
 };
+var _pymeth_split = function (sep, count) { // nargs: 0, 1 2
+    if (this.constructor !== String) return this.split.apply(this, arguments);
+    if (sep === '') {var e = Error('empty sep'); e.name='ValueError'; throw e;}
+    sep = (sep === undefined) ? /\s/ : sep;
+    if (count === undefined) { return this.split(sep); }
+    var res = [], i = 0, index1 = 0, index2 = 0;
+    while (i < count && index1 < this.length) {
+        index2 = this.indexOf(sep, index1);
+        if (index2 < 0) { break; }
+        res.push(this.slice(index1, index2));
+        index1 = index2 + sep.length || 1;
+        i += 1;
+    }
+    res.push(this.slice(index1));
+    return res;
+};
 var EuromixIRPassword, KonamiMRand, generate_password, int_js_from_bytes, int_js_to_bytes, mul64, n2h, n2h_long, safe_div, safe_modulo, shl, shr, this_is_js;
 this_is_js = function flx_this_is_js () {
     return false;
@@ -432,12 +448,24 @@ EuromixIRPassword.prototype.__init__ = function (machine_key) {
 };
 
 EuromixIRPassword.prototype.parse_machine_key = function () {
-    var a, a1, a2, buf, chunk1, chunk1_data, chunk2, chunk2_data, chunk3, chunk3_data, day, machine_key, month, seed, stub2_, stub2_c, stub2_i0, stub2_iter0, v1, v2, year;
-    stub2_ = [];stub2_iter0 = _pymeth_replace.call(this.machine_key, "-", "");if ((typeof stub2_iter0 === "object") && (!Array.isArray(stub2_iter0))) {stub2_iter0 = Object.keys(stub2_iter0);}for (stub2_i0=0; stub2_i0<stub2_iter0.length; stub2_i0++) {stub2_c = stub2_iter0[stub2_i0];{stub2_.push(stub2_c.charCodeAt(0));}}
-    machine_key = stub2_;
-    chunk1 = machine_key.slice(0,7);
-    chunk2 = machine_key.slice(7,14);
-    chunk3 = machine_key.slice(14,21);
+    var a, a1, a2, buf, c, chunk, chunk1, chunk1_data, chunk2, chunk2_data, chunk3, chunk3_data, chunk_bytes, day, machine_key_chunks, month, seed, stub2_seq, stub3_itr, stub4_seq, stub5_itr, stub6_, v1, v2, year;
+    machine_key_chunks = [];
+    stub4_seq = _pymeth_split.call(this.machine_key, "-");
+    if ((typeof stub4_seq === "object") && (!Array.isArray(stub4_seq))) { stub4_seq = Object.keys(stub4_seq);}
+    for (stub5_itr = 0; stub5_itr < stub4_seq.length; stub5_itr += 1) {
+        chunk = stub4_seq[stub5_itr];
+        chunk_bytes = [];
+        stub2_seq = chunk;
+        if ((typeof stub2_seq === "object") && (!Array.isArray(stub2_seq))) { stub2_seq = Object.keys(stub2_seq);}
+        for (stub3_itr = 0; stub3_itr < stub2_seq.length; stub3_itr += 1) {
+            c = stub2_seq[stub3_itr];
+            _pymeth_append.call(chunk_bytes, c.charCodeAt(0));
+        }
+        _pymeth_append.call(machine_key_chunks, chunk_bytes);
+    }
+    if (!(machine_key_chunks.length == 3)) { throw _pyfunc_op_error('AssertionError', "machine_key_chunks.length == 3");}
+    stub6_ = machine_key_chunks;
+    chunk1 = stub6_[0];chunk2 = stub6_[1];chunk3 = stub6_[2];
     seed = this.generate_seed_hash("SIDENC", "GN894EAA");
     chunk1_data = this.decode_chunk(this.generate_scrambled_charset(seed), chunk1);
     chunk2_data = this.decode_chunk(this.generate_scrambled_charset(seed + 576), chunk2);
@@ -514,7 +542,7 @@ EuromixIRPassword.prototype.scramble_buffer_with_seed2 = function (seed, data) {
 };
 
 EuromixIRPassword.prototype.generate_seed_hash = function (input, input2) {
-    var a, b, c, hash1, iVar3, j, output, sra, stub3_, stub3_c, stub3_i0, stub3_iter0, stub4_, stub4_c, stub4_i0, stub4_iter0, stub5_seq, stub6_itr, stub7_seq, stub8_itr, uVar7;
+    var a, b, c, hash1, iVar3, j, output, sra, stub10_itr, stub11_seq, stub12_itr, stub7_, stub7_c, stub7_i0, stub7_iter0, stub8_, stub8_c, stub8_i0, stub8_iter0, stub9_seq, uVar7;
     sra = (function flx_sra (x, n, m) {
         var filler;
         if ((!_pyfunc_op_equals((x & (Math.pow(2, (n - 1)))), 0))) {
@@ -527,15 +555,15 @@ EuromixIRPassword.prototype.generate_seed_hash = function (input, input2) {
         return null;
     }).bind(this);
 
-    stub3_ = [];stub3_iter0 = input;if ((typeof stub3_iter0 === "object") && (!Array.isArray(stub3_iter0))) {stub3_iter0 = Object.keys(stub3_iter0);}for (stub3_i0=0; stub3_i0<stub3_iter0.length; stub3_i0++) {stub3_c = stub3_iter0[stub3_i0];{stub3_.push(stub3_c.charCodeAt(0));}}
-    input = stub3_;
-    stub4_ = [];stub4_iter0 = input2;if ((typeof stub4_iter0 === "object") && (!Array.isArray(stub4_iter0))) {stub4_iter0 = Object.keys(stub4_iter0);}for (stub4_i0=0; stub4_i0<stub4_iter0.length; stub4_i0++) {stub4_c = stub4_iter0[stub4_i0];{stub4_.push(stub4_c.charCodeAt(0));}}
-    input2 = stub4_;
+    stub7_ = [];stub7_iter0 = input;if ((typeof stub7_iter0 === "object") && (!Array.isArray(stub7_iter0))) {stub7_iter0 = Object.keys(stub7_iter0);}for (stub7_i0=0; stub7_i0<stub7_iter0.length; stub7_i0++) {stub7_c = stub7_iter0[stub7_i0];{stub7_.push(stub7_c.charCodeAt(0));}}
+    input = stub7_;
+    stub8_ = [];stub8_iter0 = input2;if ((typeof stub8_iter0 === "object") && (!Array.isArray(stub8_iter0))) {stub8_iter0 = Object.keys(stub8_iter0);}for (stub8_i0=0; stub8_i0<stub8_iter0.length; stub8_i0++) {stub8_c = stub8_iter0[stub8_i0];{stub8_.push(stub8_c.charCodeAt(0));}}
+    input2 = stub8_;
     hash1 = 0;
-    stub5_seq = input2;
-    if ((typeof stub5_seq === "object") && (!Array.isArray(stub5_seq))) { stub5_seq = Object.keys(stub5_seq);}
-    for (stub6_itr = 0; stub6_itr < stub5_seq.length; stub6_itr += 1) {
-        c = stub5_seq[stub6_itr];
+    stub9_seq = input2;
+    if ((typeof stub9_seq === "object") && (!Array.isArray(stub9_seq))) { stub9_seq = Object.keys(stub9_seq);}
+    for (stub10_itr = 0; stub10_itr < stub9_seq.length; stub10_itr += 1) {
+        c = stub9_seq[stub10_itr];
         for (j = 0; j < 6; j += 1) {
             a = (shl(hash1, 1) & 4294967295) | (sra(c, 8, j & 31) & 1);
             a &= 4294967295;
@@ -545,10 +573,10 @@ EuromixIRPassword.prototype.generate_seed_hash = function (input, input2) {
         }
     }
     output = 0;
-    stub7_seq = input;
-    if ((typeof stub7_seq === "object") && (!Array.isArray(stub7_seq))) { stub7_seq = Object.keys(stub7_seq);}
-    for (stub8_itr = 0; stub8_itr < stub7_seq.length; stub8_itr += 1) {
-        c = stub7_seq[stub8_itr];
+    stub11_seq = input;
+    if ((typeof stub11_seq === "object") && (!Array.isArray(stub11_seq))) { stub11_seq = Object.keys(stub11_seq);}
+    for (stub12_itr = 0; stub12_itr < stub11_seq.length; stub12_itr += 1) {
+        c = stub11_seq[stub12_itr];
         iVar3 = c + 10685573;
         hash1 = mul64(hash1, iVar3);
         uVar7 = mul64(hash1, iVar3);
@@ -560,15 +588,15 @@ EuromixIRPassword.prototype.generate_seed_hash = function (input, input2) {
 };
 
 EuromixIRPassword.prototype.generate_scrambled_charset = function (seed) {
-    var _, charset, i1, i2, stub10_, stub9_, stub9_c, stub9_i0, stub9_iter0;
+    var _, charset, i1, i2, stub13_, stub13_c, stub13_i0, stub13_iter0, stub14_;
     this.prng.init_rnd(seed);
-    stub9_ = [];stub9_iter0 = "123456789ABCDEFGHIJKLMNPQRSTUWXZ";if ((typeof stub9_iter0 === "object") && (!Array.isArray(stub9_iter0))) {stub9_iter0 = Object.keys(stub9_iter0);}for (stub9_i0=0; stub9_i0<stub9_iter0.length; stub9_i0++) {stub9_c = stub9_iter0[stub9_i0];{stub9_.push(stub9_c.charCodeAt(0));}}
-    charset = stub9_;
+    stub13_ = [];stub13_iter0 = "123456789ABCDEFGHIJKLMNPQRSTUWXZ";if ((typeof stub13_iter0 === "object") && (!Array.isArray(stub13_iter0))) {stub13_iter0 = Object.keys(stub13_iter0);}for (stub13_i0=0; stub13_i0<stub13_iter0.length; stub13_i0++) {stub13_c = stub13_iter0[stub13_i0];{stub13_.push(stub13_c.charCodeAt(0));}}
+    charset = stub13_;
     for (_ = 0; _ < 573; _ += 1) {
         i1 = this.prng.irnd(charset.length);
         i2 = this.prng.irnd(charset.length);
-        stub10_ = [charset[i2], charset[i1]];
-        charset[i1] = stub10_[0];charset[i2] = stub10_[1];
+        stub14_ = [charset[i2], charset[i1]];
+        charset[i1] = stub14_[0];charset[i2] = stub14_[1];
     }
     return charset;
 };
@@ -587,7 +615,7 @@ EuromixIRPassword.prototype.encode_chunk = function (charset, chunk, param2, chu
 };
 
 EuromixIRPassword.prototype.decode_chunk = function (charset, chunk, param2, chunkLen) {
-    var c, charsetIdx, chunkIdx, i, lastCharMaxIdx, output, stub11_seq, stub12_itr, stub13_tgt, t;
+    var c, charsetIdx, chunkIdx, i, lastCharMaxIdx, output, stub15_seq, stub16_itr, stub17_tgt, t;
     param2 = (param2 === undefined) ? 32: param2;
     chunkLen = (chunkLen === undefined) ? 7: chunkLen;
     lastCharMaxIdx = 0;
@@ -605,11 +633,11 @@ EuromixIRPassword.prototype.decode_chunk = function (charset, chunk, param2, chu
         }
     }
     output = 0;
-    stub11_seq = _pyfunc_enumerate(chunk);
-    if ((typeof stub11_seq === "object") && (!Array.isArray(stub11_seq))) { stub11_seq = Object.keys(stub11_seq);}
-    for (stub12_itr = 0; stub12_itr < stub11_seq.length; stub12_itr += 1) {
-        stub13_tgt = stub11_seq[stub12_itr];
-        i = stub13_tgt[0]; c = stub13_tgt[1];
+    stub15_seq = _pyfunc_enumerate(chunk);
+    if ((typeof stub15_seq === "object") && (!Array.isArray(stub15_seq))) { stub15_seq = Object.keys(stub15_seq);}
+    for (stub16_itr = 0; stub16_itr < stub15_seq.length; stub16_itr += 1) {
+        stub17_tgt = stub15_seq[stub16_itr];
+        i = stub17_tgt[0]; c = stub17_tgt[1];
         charsetIdx = _pymeth_index.call(charset, c);
         output = _pyfunc_op_add(output, _pyfunc_op_mult(charsetIdx, Math.pow(param2, i)));
     }
@@ -620,7 +648,7 @@ EuromixIRPassword.prototype.decode_chunk = function (charset, chunk, param2, chu
 };
 
 EuromixIRPassword.prototype.scramble_buffer_with_seed = function (seed) {
-    var _, d, i, j, output, stub14_, t1, t2, v;
+    var _, d, i, j, output, stub18_, t1, t2, v;
     this.prng.init_rnd(seed);
     d = [];
     for (i = 0; i < 32; i += 2) {
@@ -644,8 +672,8 @@ EuromixIRPassword.prototype.scramble_buffer_with_seed = function (seed) {
         for (_ = 0; _ < 576; _ += 1) {
             t1 = this.prng.irnd() & 15;
             t2 = this.prng.irnd() & 15;
-            stub14_ = [output[_pyfunc_op_add(t2, _pyfunc_op_mult(j, 16))], output[_pyfunc_op_add(t1, _pyfunc_op_mult(j, 16))]];
-            output[_pyfunc_op_add(t1, _pyfunc_op_mult(j, 16))] = stub14_[0];output[_pyfunc_op_add(t2, _pyfunc_op_mult(j, 16))] = stub14_[1];
+            stub18_ = [output[_pyfunc_op_add(t2, _pyfunc_op_mult(j, 16))], output[_pyfunc_op_add(t1, _pyfunc_op_mult(j, 16))]];
+            output[_pyfunc_op_add(t1, _pyfunc_op_mult(j, 16))] = stub18_[0];output[_pyfunc_op_add(t2, _pyfunc_op_mult(j, 16))] = stub18_[1];
         }
     }
     return output;
@@ -711,15 +739,14 @@ EuromixIRPassword.prototype.xor_bytes = function (data, offset, val) {
 };
 
 EuromixIRPassword.prototype.verify_password = function (password) {
-    var buf, chunk1, chunk1_output, chunk2, chunk2_output, chunk3, chunk3_output, h1, h2, h3, h4, seed, stub15_, stub16_, stub16_i, stub16_i0, stub16_iter0, v, x;
+    var buf, chunk1, chunk1_output, chunk2, chunk2_output, chunk3, chunk3_output, h1, h2, h3, h4, seed, stub19_, stub20_, stub20_i, stub20_i0, stub20_iter0, v, x;
     this.prng = new KonamiMRand();
     password = ((password !== null))? ((function list_comprehension (iter0) {var res = [];var c, i0;if ((typeof iter0 === "object") && (!Array.isArray(iter0))) {iter0 = Object.keys(iter0);}for (i0=0; i0<iter0.length; i0++) {c = iter0[i0];{res.push(c.charCodeAt(0));}}return res;}).call(this, _pymeth_replace.call(password, "-", ""))) : (null);
-    stub16_ = [];stub16_iter0 = _pyfunc_range(0, password.length, 7);if ((typeof stub16_iter0 === "object") && (!Array.isArray(stub16_iter0))) {stub16_iter0 = Object.keys(stub16_iter0);}for (stub16_i0=0; stub16_i0<stub16_iter0.length; stub16_i0++) {stub16_i = stub16_iter0[stub16_i0];{stub16_.push(password.slice(stub16_i,stub16_i + 7));}}
-    stub15_ = stub16_;
-    chunk1 = stub15_[0];chunk2 = stub15_[1];chunk3 = stub15_[2];
+    stub20_ = [];stub20_iter0 = _pyfunc_range(0, password.length, 7);if ((typeof stub20_iter0 === "object") && (!Array.isArray(stub20_iter0))) {stub20_iter0 = Object.keys(stub20_iter0);}for (stub20_i0=0; stub20_i0<stub20_iter0.length; stub20_i0++) {stub20_i = stub20_iter0[stub20_i0];{stub20_.push(password.slice(stub20_i,stub20_i + 7));}}
+    stub19_ = stub20_;
+    chunk1 = stub19_[0];chunk2 = stub19_[1];chunk3 = stub19_[2];
     seed = this.generate_seed_hash(this.security_id, "GN894EAA");
     x = this.decode_chunk(this.generate_scrambled_charset(seed), chunk1);
-    console.log(x);
     chunk1_output = this.scramble_buffer_with_seed_even_more(seed + 897, x);
     chunk2_output = this.scramble_buffer_with_seed_even_more(this.calc_crc16(chunk1), this.decode_chunk(this.generate_scrambled_charset(seed + 576), chunk2));
     chunk3_output = this.scramble_buffer_with_seed_even_more(this.calc_crc16_alt(chunk2), this.decode_chunk(this.generate_scrambled_charset(seed + 1152), chunk3));
@@ -753,7 +780,7 @@ EuromixIRPassword.prototype.verify_password = function (password) {
 };
 
 EuromixIRPassword.prototype.generate_password = function (year, month, day) {
-    var buf, chunk1, chunk1_payload, chunk2, chunk2_payload, chunk3, chunk3_payload, h1, h2, parts, payload, seed, stub17_seq, stub18_itr, x;
+    var buf, chunk1, chunk1_payload, chunk2, chunk2_payload, chunk3, chunk3_payload, h1, h2, parts, payload, seed, stub21_seq, stub22_itr, x;
     if (!(year > 2000)) { throw _pyfunc_op_error('AssertionError', "year > 2000");}
     if (!(month > 8)) { throw _pyfunc_op_error('AssertionError', "month > 8");}
     payload = (day | shl(month, 8)) | shl(year, 16);
@@ -788,10 +815,10 @@ EuromixIRPassword.prototype.generate_password = function (year, month, day) {
     chunk2 = this.encode_chunk(this.generate_scrambled_charset(seed + 576), this.scramble_buffer_with_seed_even_more(this.calc_crc16(chunk1), chunk2_payload));
     chunk3 = this.encode_chunk(this.generate_scrambled_charset(seed + 1152), this.scramble_buffer_with_seed_even_more(this.calc_crc16_alt(chunk2), chunk3_payload));
     parts = [];
-    stub17_seq = [chunk1, chunk2, chunk3];
-    if ((typeof stub17_seq === "object") && (!Array.isArray(stub17_seq))) { stub17_seq = Object.keys(stub17_seq);}
-    for (stub18_itr = 0; stub18_itr < stub17_seq.length; stub18_itr += 1) {
-        x = stub17_seq[stub18_itr];
+    stub21_seq = [chunk1, chunk2, chunk3];
+    if ((typeof stub21_seq === "object") && (!Array.isArray(stub21_seq))) { stub21_seq = Object.keys(stub21_seq);}
+    for (stub22_itr = 0; stub22_itr < stub21_seq.length; stub22_itr += 1) {
+        x = stub21_seq[stub22_itr];
         _pymeth_append.call(parts, (_pymeth_join.call("", ((function list_comprehension (iter0) {var res = [];var c, i0;if ((typeof iter0 === "object") && (!Array.isArray(iter0))) {iter0 = Object.keys(iter0);}for (i0=0; i0<iter0.length; i0++) {c = iter0[i0];{res.push(String.fromCharCode(c));}}return res;}).call(this, x)))));
     }
     return _pymeth_join.call("-", parts);

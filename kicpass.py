@@ -204,10 +204,17 @@ class EuromixIRPassword:
 
 
     def parse_machine_key(self):
-        machine_key = [ord(c) for c in self.machine_key.replace("-", "")]
-        chunk1 = machine_key[:7]
-        chunk2 = machine_key[7:14]
-        chunk3 = machine_key[14:21]
+        machine_key_chunks = []
+        for chunk in self.machine_key.split("-"):
+            chunk_bytes = []
+            for c in chunk:
+                chunk_bytes.append(ord(c))
+            machine_key_chunks.append(chunk_bytes)
+
+
+        assert(len(machine_key_chunks) == 3)
+
+        chunk1, chunk2, chunk3 = machine_key_chunks
 
         seed = self.generate_seed_hash("SIDENC", "GN894EAA")
         chunk1_data = self.decode_chunk(
@@ -519,7 +526,6 @@ class EuromixIRPassword:
             self.generate_scrambled_charset(seed),
             chunk1
         )
-        print(x)
         chunk1_output = self.scramble_buffer_with_seed_even_more(
             seed + 0x381,
             x
