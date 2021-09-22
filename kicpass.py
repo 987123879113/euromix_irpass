@@ -662,11 +662,15 @@ class EuromixIRPassword:
 
 
 def generate_password(machine_license_key, year=3030, day=9, month=22):
-    irpass = EuromixIRPassword(machine_license_key)
-    password = irpass.generate_password(year, day, month)
+    try:
+        irpass = EuromixIRPassword(machine_license_key)
+        password = irpass.generate_password(year, day, month)
 
-    irpass_check = EuromixIRPassword(machine_license_key)
-    if irpass_check.verify_password(password) == False:
-        return "Failed to generate password!"
+        irpass_check = EuromixIRPassword(machine_license_key)
+        if irpass_check.verify_password(password) == False:
+            return "Failed to generate password!"
 
-    return password
+        return password
+
+    except:
+        return "Unknown error"

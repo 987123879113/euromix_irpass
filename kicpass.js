@@ -830,11 +830,18 @@ generate_password = function flx_generate_password (machine_license_key, year, d
     year = (year === undefined) ? 3030: year;
     day = (day === undefined) ? 9: day;
     month = (month === undefined) ? 22: month;
-    irpass = new EuromixIRPassword(machine_license_key);
-    password = irpass.generate_password(year, day, month);
-    irpass_check = new EuromixIRPassword(machine_license_key);
-    if ((_pyfunc_op_equals(irpass_check.verify_password(password), false))) {
-        return "Failed to generate password!";
+    try {
+        irpass = new EuromixIRPassword(machine_license_key);
+        password = irpass.generate_password(year, day, month);
+        irpass_check = new EuromixIRPassword(machine_license_key);
+        if ((_pyfunc_op_equals(irpass_check.verify_password(password), false))) {
+            return "Failed to generate password!";
+        }
+        return password;
+    } catch(err_2) {
+        {
+            return "Unknown error";
+        }
     }
-    return password;
+    return null;
 };
