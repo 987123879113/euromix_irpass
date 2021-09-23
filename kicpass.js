@@ -146,7 +146,6 @@ var _pyfunc_range = function (start, end, step) {
     }
     return res;
 };
-var _pyfunc_str = String;
 var _pyfunc_truthy = function (v) {
     if (v === null || typeof v !== "object") {return v;}
     else if (v.length !== undefined) {return v.length ? v : false;}
@@ -247,15 +246,7 @@ var _pymeth_upper = function () { // nargs: 0
     if (this.constructor !== String) return this.upper.apply(this, arguments);
     return this.toUpperCase();
 };
-var EuromixIRPassword, InternalGeneratorError, KonamiMRand, generate_password, int_js_from_bytes, int_js_to_bytes, mul64, n2h, n2h_long, safe_div, safe_modulo, shl, shr, this_is_js;
-InternalGeneratorError = function () {
-    _pyfunc_op_instantiate(this, arguments);
-}
-InternalGeneratorError.prototype = Object.create(Exception.prototype);
-InternalGeneratorError.prototype._base_class = Exception.prototype;
-InternalGeneratorError.prototype.__name__ = "InternalGeneratorError";
-
-
+var EuromixIRPassword, KonamiMRand, generate_password, int_js_from_bytes, int_js_to_bytes, mul64, n2h, n2h_long, safe_div, safe_modulo, shl, shr, this_is_js;
 this_is_js = function flx_this_is_js () {
     return false;
 };
@@ -484,7 +475,7 @@ EuromixIRPassword.prototype.parse_machine_key = function () {
         _pymeth_append.call(machine_key_chunks, chunk_bytes);
     }
     if (_pyfunc_truthy(machine_key_chunks.length != 3)) {
-        throw _pyfunc_op_error('InternalGeneratorError', "Machine key must have 3 dash sections");
+        throw _pyfunc_op_error('ValueError', "Machine key must have 3 dashes");
     }
     stub6_ = machine_key_chunks;
     chunk1 = stub6_[0];chunk2 = stub6_[1];chunk3 = stub6_[2];
@@ -504,7 +495,7 @@ EuromixIRPassword.prototype.parse_machine_key = function () {
     a1 = this.calc_crc16_alt(buf, 4) & 255;
     a2 = this.calc_crc16(buf, 10) & 255;
     if ((((!_pyfunc_op_equals(a1, buf[10]))) || (!_pyfunc_op_equals(a2, buf[11])))) {
-        throw _pyfunc_op_error('InternalGeneratorError', ("Invalid checksums! " + (_pymeth_join.call(" ", ((function list_comprehension (iter0) {var res = [];var x, i0;if ((typeof iter0 === "object") && (!Array.isArray(iter0))) {iter0 = Object.keys(iter0);}for (i0=0; i0<iter0.length; i0++) {x = iter0[i0];{res.push(_pymeth_format.call("{:02X}", x));}}return res;}).call(this, buf))))));
+        throw _pyfunc_op_error('ValueError', ("Invalid checksums! " + (_pymeth_join.call(" ", ((function list_comprehension (iter0) {var res = [];var x, i0;if ((typeof iter0 === "object") && (!Array.isArray(iter0))) {iter0 = Object.keys(iter0);}for (i0=0; i0<iter0.length; i0++) {x = iter0[i0];{res.push(_pymeth_format.call("{:02X}", x));}}return res;}).call(this, buf))))));
     }
     this.security_id = _pymeth_join.call("", ((function list_comprehension (iter0) {var res = [];var x, i0;if ((typeof iter0 === "object") && (!Array.isArray(iter0))) {iter0 = Object.keys(iter0);}for (i0=0; i0<iter0.length; i0++) {x = iter0[i0];{res.push(n2h(x));}}return res;}).call(this, buf.slice(4,10))));
     day = shr(chunk1_data, 11) & 31;
@@ -859,9 +850,9 @@ generate_password = function flx_generate_password (machine_license_key, year, d
         }
         return password;
     } catch(err_2) {
-        if (err_2 instanceof Error && err_2.name === "InternalGeneratorError") {
+        if (err_2 instanceof Error && err_2.name === "ValueError") {
             e = err_2;
-            return _pyfunc_str(e);
+            return _pymeth_replace.call(e.message, "ValueError: ", "");
         } else {
             return "Unknown error";
         }

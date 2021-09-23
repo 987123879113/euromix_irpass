@@ -1,8 +1,5 @@
 # Lots of hacks for pscript so the website can be generated using the same Python code
 
-class InternalGeneratorError(Exception):
-    pass
-
 
 def this_is_js():
     return False
@@ -216,7 +213,7 @@ class EuromixIRPassword:
             machine_key_chunks.append(chunk_bytes)
 
         if len(machine_key_chunks) != 3:
-            raise InternalGeneratorError("Machine key must have 3 dash sections")
+            raise ValueError("Machine key must have 3 dashes")
 
         chunk1, chunk2, chunk3 = machine_key_chunks
 
@@ -261,7 +258,7 @@ class EuromixIRPassword:
         a2 = self.calc_crc16(buf, 10) & 0xff
 
         if a1 != buf[10] or a2 != buf[11]:
-            raise InternalGeneratorError("Invalid checksums! " + " ".join(["%02X" % x for x in buf]))
+            raise ValueError("Invalid checksums! " + " ".join(["%02X" % x for x in buf]))
 
         self.security_id = "".join([n2h(x) for x in buf[4:10]])
 
@@ -674,8 +671,8 @@ def generate_password(machine_license_key, year=3030, day=9, month=22):
 
         return password
 
-    except InternalGeneratorError as e:
-        return str(e)
+    except ValueError as e:
+        return e.message.replace("ValueError: ", "")
 
     except:
         return "Unknown error"
