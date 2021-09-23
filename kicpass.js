@@ -146,6 +146,7 @@ var _pyfunc_range = function (start, end, step) {
     }
     return res;
 };
+var _pyfunc_str = String;
 var _pyfunc_truthy = function (v) {
     if (v === null || typeof v !== "object") {return v;}
     else if (v.length !== undefined) {return v.length ? v : false;}
@@ -852,7 +853,7 @@ generate_password = function flx_generate_password (machine_license_key, year, d
     } catch(err_2) {
         if (err_2 instanceof Error && err_2.name === "ValueError") {
             e = err_2;
-            return _pymeth_replace.call(e.message, "ValueError: ", "");
+            return _pymeth_replace.call(_pyfunc_str(e), "ValueError: ", "");
         } else {
             return "Unknown error";
         }

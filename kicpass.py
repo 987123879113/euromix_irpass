@@ -672,7 +672,7 @@ def generate_password(machine_license_key, year=3030, day=9, month=22):
         return password
 
     except ValueError as e:
-        return e.message.replace("ValueError: ", "")
+        return str(e).replace("ValueError: ", "")
 
     except:
         return "Unknown error"
