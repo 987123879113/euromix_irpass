@@ -146,6 +146,14 @@ var _pyfunc_range = function (start, end, step) {
     }
     return res;
 };
+var _pyfunc_str = String;
+var _pyfunc_truthy = function (v) {
+    if (v === null || typeof v !== "object") {return v;}
+    else if (v.length !== undefined) {return v.length ? v : false;}
+    else if (v.byteLength !== undefined) {return v.byteLength ? v : false;}
+    else if (v.constructor !== Object) {return true;}
+    else {return Object.getOwnPropertyNames(v).length ? v : false;}
+};
 var _pymeth_append = function (x) { // nargs: 1
     if (!Array.isArray(this)) return this.append.apply(this, arguments);
     this.push(x);
@@ -235,7 +243,19 @@ var _pymeth_split = function (sep, count) { // nargs: 0, 1 2
     res.push(this.slice(index1));
     return res;
 };
-var EuromixIRPassword, KonamiMRand, generate_password, int_js_from_bytes, int_js_to_bytes, mul64, n2h, n2h_long, safe_div, safe_modulo, shl, shr, this_is_js;
+var _pymeth_upper = function () { // nargs: 0
+    if (this.constructor !== String) return this.upper.apply(this, arguments);
+    return this.toUpperCase();
+};
+var EuromixIRPassword, InternalGeneratorError, KonamiMRand, generate_password, int_js_from_bytes, int_js_to_bytes, mul64, n2h, n2h_long, safe_div, safe_modulo, shl, shr, this_is_js;
+InternalGeneratorError = function () {
+    _pyfunc_op_instantiate(this, arguments);
+}
+InternalGeneratorError.prototype = Object.create(Exception.prototype);
+InternalGeneratorError.prototype._base_class = Exception.prototype;
+InternalGeneratorError.prototype.__name__ = "InternalGeneratorError";
+
+
 this_is_js = function flx_this_is_js () {
     return false;
 };
@@ -441,14 +461,14 @@ EuromixIRPassword.prototype._base_class = Object;
 EuromixIRPassword.prototype.__name__ = "EuromixIRPassword";
 
 EuromixIRPassword.prototype.__init__ = function (machine_key) {
-    this.machine_key = machine_key;
+    this.machine_key = _pymeth_upper.call(machine_key);
     this.prng = new KonamiMRand();
     this.parse_machine_key();
     return null;
 };
 
 EuromixIRPassword.prototype.parse_machine_key = function () {
-    var a, a1, a2, buf, c, chunk, chunk1, chunk1_data, chunk2, chunk2_data, chunk3, chunk3_data, chunk_bytes, day, machine_key_chunks, month, seed, stub2_seq, stub3_itr, stub4_seq, stub5_itr, stub6_, v1, v2, year;
+    var a, a1, a2, buf, c, chunk, chunk1, chunk1_data, chunk2, chunk2_data, chunk3, chunk3_data, chunk_bytes, day, err_2, machine_key_chunks, month, seed, stub2_seq, stub3_itr, stub4_seq, stub5_itr, stub6_, v1, v2, year;
     machine_key_chunks = [];
     stub4_seq = _pymeth_split.call(this.machine_key, "-");
     if ((typeof stub4_seq === "object") && (!Array.isArray(stub4_seq))) { stub4_seq = Object.keys(stub4_seq);}
@@ -463,7 +483,9 @@ EuromixIRPassword.prototype.parse_machine_key = function () {
         }
         _pymeth_append.call(machine_key_chunks, chunk_bytes);
     }
-    if (!(machine_key_chunks.length == 3)) { throw _pyfunc_op_error('AssertionError', "machine_key_chunks.length == 3");}
+    if (_pyfunc_truthy(machine_key_chunks.length != 3)) {
+        throw _pyfunc_op_error('InternalGeneratorError', "Machine key must have 3 dash sections");
+    }
     stub6_ = machine_key_chunks;
     chunk1 = stub6_[0];chunk2 = stub6_[1];chunk3 = stub6_[2];
     seed = this.generate_seed_hash("SIDENC", "GN894EAA");
@@ -482,9 +504,7 @@ EuromixIRPassword.prototype.parse_machine_key = function () {
     a1 = this.calc_crc16_alt(buf, 4) & 255;
     a2 = this.calc_crc16(buf, 10) & 255;
     if ((((!_pyfunc_op_equals(a1, buf[10]))) || (!_pyfunc_op_equals(a2, buf[11])))) {
-        console.log("Invalid checksums!");
-        console.log((_pymeth_join.call(" ", ((function list_comprehension (iter0) {var res = [];var x, i0;if ((typeof iter0 === "object") && (!Array.isArray(iter0))) {iter0 = Object.keys(iter0);}for (i0=0; i0<iter0.length; i0++) {x = iter0[i0];{res.push(_pymeth_format.call("{:02X}", x));}}return res;}).call(this, buf)))));
-        exit(1);
+        throw _pyfunc_op_error('InternalGeneratorError', ("Invalid checksums! " + (_pymeth_join.call(" ", ((function list_comprehension (iter0) {var res = [];var x, i0;if ((typeof iter0 === "object") && (!Array.isArray(iter0))) {iter0 = Object.keys(iter0);}for (i0=0; i0<iter0.length; i0++) {x = iter0[i0];{res.push(_pymeth_format.call("{:02X}", x));}}return res;}).call(this, buf))))));
     }
     this.security_id = _pymeth_join.call("", ((function list_comprehension (iter0) {var res = [];var x, i0;if ((typeof iter0 === "object") && (!Array.isArray(iter0))) {iter0 = Object.keys(iter0);}for (i0=0; i0<iter0.length; i0++) {x = iter0[i0];{res.push(n2h(x));}}return res;}).call(this, buf.slice(4,10))));
     day = shr(chunk1_data, 11) & 31;
@@ -826,7 +846,7 @@ EuromixIRPassword.prototype.generate_password = function (year, month, day) {
 
 
 generate_password = function flx_generate_password (machine_license_key, year, day, month) {
-    var irpass, irpass_check, password;
+    var e, irpass, irpass_check, password;
     year = (year === undefined) ? 3030: year;
     day = (day === undefined) ? 9: day;
     month = (month === undefined) ? 22: month;
@@ -839,7 +859,10 @@ generate_password = function flx_generate_password (machine_license_key, year, d
         }
         return password;
     } catch(err_2) {
-        {
+        if (err_2 instanceof Error && err_2.name === "InternalGeneratorError") {
+            e = err_2;
+            return _pyfunc_str(e);
+        } else {
             return "Unknown error";
         }
     }

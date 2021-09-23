@@ -42,7 +42,7 @@ def get_current_date():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--license', '-k', help='Machine license key', default="BWRBQE9132DXTKCRPRN64")
+    parser.add_argument('--license', '-k', help='Machine license key', default="BWRBQE9-132DXTK-CRPRN64")
 
     args = parser.parse_args()
 

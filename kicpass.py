@@ -1,5 +1,9 @@
 # Lots of hacks for pscript so the website can be generated using the same Python code
 
+class InternalGeneratorError(Exception):
+    pass
+
+
 def this_is_js():
     return False
 
@@ -198,7 +202,7 @@ class KonamiMRand:
 
 class EuromixIRPassword:
     def __init__(self, machine_key):
-        self.machine_key = machine_key
+        self.machine_key = machine_key.upper()
         self.prng = KonamiMRand()
         self.parse_machine_key()
 
@@ -211,8 +215,8 @@ class EuromixIRPassword:
                 chunk_bytes.append(ord(c))
             machine_key_chunks.append(chunk_bytes)
 
-
-        assert(len(machine_key_chunks) == 3)
+        if len(machine_key_chunks) != 3:
+            raise InternalGeneratorError("Machine key must have 3 dash sections")
 
         chunk1, chunk2, chunk3 = machine_key_chunks
 
@@ -257,9 +261,7 @@ class EuromixIRPassword:
         a2 = self.calc_crc16(buf, 10) & 0xff
 
         if a1 != buf[10] or a2 != buf[11]:
-            print("Invalid checksums!")
-            print(" ".join(["%02X" % x for x in buf]))
-            exit(1)
+            raise InternalGeneratorError("Invalid checksums! " + " ".join(["%02X" % x for x in buf]))
 
         self.security_id = "".join([n2h(x) for x in buf[4:10]])
 
@@ -671,6 +673,9 @@ def generate_password(machine_license_key, year=3030, day=9, month=22):
             return "Failed to generate password!"
 
         return password
+
+    except InternalGeneratorError as e:
+        return str(e)
 
     except:
         return "Unknown error"
