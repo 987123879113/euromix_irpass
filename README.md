@@ -1,6 +1,8 @@
 # euromix_irpass
 Dancing Stage Euromix - Internet Challenge password generator
 
+Web version: https://987123879113.github.io/euromix_irpass/
+
 ## Usage
 ```
 usage: keygen.py [-h] [--license LICENSE]
